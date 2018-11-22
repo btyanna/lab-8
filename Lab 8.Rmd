@@ -9,3 +9,86 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r, echo = F, message = F}
+# Loading tidyverse
+library(tidyverse)
+
+# Loading CSV
+salmon = read_csv("salmon_imports.csv")
+
+```
+
+```{r, echo = F}
+# Exploratory scatterplot
+scatt_salmon = ggplot(salmon, aes(x = year, y = salmon_thousand_lb)) +
+  geom_point() +
+  theme_classic()
+
+scatt_salmon # Viewing plot
+
+# Using linear regression between the year and fresh salmon imports do not necessarily make sense because the year itself does not have a direct impact on the amount of fresh salmon imports there are. As in, we cannot use the year alone to predict the future outcome of salmon imports. 
+
+# Linear regression
+salmon_model = lm(salmon_thousand_lb ~ year, data = salmon)
+
+salmon_model # Viewing model
+
+# slope = 7.550e+03, y-intercept = -1.498e+07
+# Model equation = Imports(1000 lb) = 7.550e+03(year) - 1.498e+07
+
+```
+
+What does the *slope* mean in the context of this model?
+
+The slope means that the amount of imported salmon there are has an increasting at the rate of 7.550e+03 salmon (1000 lbs)/year.
+
+What does the *y-intercept* mean in the context of this model? Why is that concerning? What does this mean about *extrapolating* this model for past values?
+
+The y-intercept means that if the year were to be zero, then the amount of imported salmon would be -1.498e+07 thousand lbs, and is concerning because it solely does not make sense since there are other factors that can affect this, thus the importance of extapolating this dataset. 
+
+```{r, echo = F, message = F}
+# Producing model diagnostics
+plot(salmon_model)
+
+# Displaying all plots to knitted doc
+par(mfrow = c(2,2))
+plot(salmon_model)
+```
+Do residuals appear normally distributed?
+
+Yes, based on the normal Q-Q plot, the residuals do appear normally distributed.
+
+Any concerns about heteroscedasticity or outliers?
+
+I would say that based on the residuals vs fitted plot, it's showing more heteroscedasticity, and based on the residuals vs leverage plot, there are outliers (24, 25, 28) that may be influencing the data.
+
+```{r, echo = F, message = F}
+# Viewing summary of data
+summary(salmon_model)
+```
+Does year significantly predict salmon imports?
+
+The year significantly has an impact in predicting the salmon imports (*p* < 2.2e-16).
+
+What does the R2 value actually mean in words?
+
+94.78% of variance in the dependent variable is predictable from the independent variable.
+
+What proportion of the variance in salmon imports is NOT explained by year?
+
+5.22% of the variance in salmon imports is NOT explained by year.
+
+```{r, echo = F}
+# Creating final graph
+salmon_fingraph = ggplot(salmon, aes(x = year, y = salmon_thousand_lb)) +
+  geom_point() +
+  geom_smooth(method = lm, se = TRUE, size = 0.5, color = "gray20") +
+  theme_bw() +
+  scale_x_continuous(expand = c(0,0), limits = c(1990, 2017)) +
+  labs(x = "Year", y = "U.S. Annual Fresh Salmon Imports\n(1,000 pounds)",
+       title = "U.S. Annual Fresh Salmon Imports \n(1990-2017), Tyanna Bui")
+
+salmon_fingraph
+
+```
+
