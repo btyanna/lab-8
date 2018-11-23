@@ -9,7 +9,7 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, echo = F, message = F}
+```{r, echo = FALSE, message = FALSE}
 # Loading tidyverse
 library(tidyverse)
 
@@ -18,7 +18,7 @@ salmon = read_csv("salmon_imports.csv")
 
 ```
 
-```{r, echo = F}
+```{r, echo = FALSE, message = FALSE}
 # Exploratory scatterplot
 scatt_salmon = ggplot(salmon, aes(x = year, y = salmon_thousand_lb)) +
   geom_point() +
@@ -40,13 +40,13 @@ salmon_model # Viewing model
 
 What does the *slope* mean in the context of this model?
 
-The slope means that the amount of imported salmon there are has an increasting at the rate of 7.550e+03 salmon (1000 lbs)/year.
+The slope means that the amount of imported salmon there are has an increasting rate of 7.550e+03 salmon (1000 lbs)/year.
 
 What does the *y-intercept* mean in the context of this model? Why is that concerning? What does this mean about *extrapolating* this model for past values?
 
 The y-intercept means that if the year were to be zero, then the amount of imported salmon would be -1.498e+07 thousand lbs, and is concerning because it solely does not make sense since there are other factors that can affect this, thus the importance of extapolating this dataset. 
 
-```{r, echo = F, message = F}
+```{r, echo = FALSE, message = FALSE}
 # Producing model diagnostics
 plot(salmon_model)
 
@@ -62,7 +62,7 @@ Any concerns about heteroscedasticity or outliers?
 
 I would say that based on the residuals vs fitted plot, it's showing more heteroscedasticity, and based on the residuals vs leverage plot, there are outliers (24, 25, 28) that may be influencing the data.
 
-```{r, echo = F, message = F}
+```{r, echo = FALSE, message = FALSE}
 # Viewing summary of data
 summary(salmon_model)
 ```
@@ -78,7 +78,7 @@ What proportion of the variance in salmon imports is NOT explained by year?
 
 5.22% of the variance in salmon imports is NOT explained by year.
 
-```{r, echo = F}
+```{r, echo = FALSE, message = FALSE}
 # Creating final graph
 salmon_fingraph = ggplot(salmon, aes(x = year, y = salmon_thousand_lb)) +
   geom_point() +
@@ -92,3 +92,18 @@ salmon_fingraph
 
 ```
 
+```{r, echo = FALSE, message = FALSE}
+# Creating new data frame, new_years
+new_years = data.frame(year = c(2022, 2024, 2028))
+
+# Using predict() to make predict the years based off model
+future_predict = predict(salmon_model, newdata = new_years, interval = "confidence")
+future_predict
+
+# Using Pearson's r to find correlation
+correl = cor.test(salmon$year, salmon$salmon_thousand_lb)
+correl # Pearson's r = 0.9735387, strong correlation
+
+```
+
+The overall model (Imports(1000 lb) = 7.550e+03(year) - 1.498e+07) explains a significant amount of variance in salmon imports (F(1, 26) = 472, *p* < 0.001, R^2 = 0.95).
